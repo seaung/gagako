@@ -3,6 +3,7 @@ module github.com/seaung/gagako
 go 1.17
 
 require (
+	github.com/Ullaakut/nmap v2.0.2+incompatible // indirect
 	github.com/abiosoft/ishell v2.0.0+incompatible // indirect
 	github.com/abiosoft/readline v0.0.0-20180607040430-155bce2042db // indirect
 	github.com/fatih/color v1.13.0 // indirect

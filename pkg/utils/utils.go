@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	author  string
-	version string
+	author  string = "seaung"
+	version string = "1.0.0"
 )
 
 func checkSudo() {
