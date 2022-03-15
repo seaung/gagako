@@ -15,7 +15,7 @@ var (
 
 func checkSudo() {
 	if os.Geteuid() != 0 {
-		fmt.Println("[!] This program need to have root permission to execute nmap for now.")
+		New().LoggerError("[!] This program need to have root permission to execute nmap for now.")
 		os.Exit(1)
 	}
 }

@@ -25,5 +25,5 @@ func (l *Logger) Warnning(message string) {
 
 func (l *Logger) LoggerError(message string) {
 	highlight := color.New(color.FgRed).SprintFunc()
-	fmt.Println(highlight("[!]"), highlight(message))
+	fmt.Println(highlight("[-]"), highlight(message))
 }
