@@ -27,3 +27,8 @@ func (l *Logger) LoggerError(message string) {
 	highlight := color.New(color.FgRed).SprintFunc()
 	fmt.Println(highlight("[-]"), highlight(message))
 }
+
+func (l *Logger) Success(message string) {
+	highlight := color.New(color.FgGreen).SprintFunc()
+	fmt.Println(highlight("[+]"), highlight(message))
+}

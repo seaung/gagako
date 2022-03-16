@@ -1,7 +1,13 @@
 package cmd
 
 import (
+	"encoding/base64"
+	"encoding/hex"
+	"fmt"
+	"net/url"
+
 	"github.com/abiosoft/ishell"
+	"github.com/seaung/gagako/pkg/utils"
 )
 
 var encode = &ishell.Cmd{
@@ -31,4 +37,31 @@ func init() {
 	rootCmd.AddCmd(encode)
 }
 
-func encoding(etype int, estring string) {}
+func encoding(etype int, estring string) {
+	switch etype {
+	default:
+		utils.New().LoggerError("未知编码!")
+	case 1:
+		utils.New().Success(fmt.Sprintf("Base64 编码结果: %s\n", base64decoding(estring)))
+	case 0:
+		utils.New().Success(fmt.Sprintf("URL 编码结果: %s\n", urlEncoding(estring)))
+	case 2:
+		utils.New().Success(fmt.Sprintf("HEX 编码结果: %s\n", hexEncoding(estring)))
+	}
+}
+
+func base64encoding(str string) string {
+	src := []byte(str)
+	e := base64.StdEncoding.EncodeToString(src)
+	return e
+}
+
+func hexEncoding(str string) string {
+	src := []byte(str)
+	hexstr := hex.EncodeToString(src)
+	return hexstr
+}
+
+func urlEncoding(src string) string {
+	return url.QueryEscape(src)
+}
