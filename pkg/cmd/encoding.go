@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"crypto/md5"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
@@ -25,6 +27,10 @@ var encode = &ishell.Cmd{
 			"URL-Encoding",
 			"Base64",
 			"Hex",
+			"HTML-Encoding",
+			"MD5-32",
+			"MD5-16",
+			"HASH256",
 		}, "请您选择一个编码的类型")
 
 		c.Print("您输入的字符串为: ", isStr)
@@ -47,6 +53,14 @@ func encoding(etype int, estring string) {
 		utils.New().Success(fmt.Sprintf("URL 编码结果: %s\n", urlEncoding(estring)))
 	case 2:
 		utils.New().Success(fmt.Sprintf("HEX 编码结果: %s\n", hexEncoding(estring)))
+	case 3:
+		utils.New().Success(fmt.Sprintf("HTML 编码结果: %s\n", htmlEncoding(estring)))
+	case 4:
+		utils.New().Success(fmt.Sprintf("MD5 32编码结果: %s\n", md5Encoding32(estring)))
+	case 5:
+		utils.New().Success(fmt.Sprintf("MD5 16编码结果: %s\n", md5Encoding16(estring)))
+	case 6:
+		utils.New().Success(fmt.Sprintf("HASH256编码结果: %s\n", sha256Encoding(estring)))
 	}
 }
 
@@ -64,4 +78,30 @@ func hexEncoding(str string) string {
 
 func urlEncoding(src string) string {
 	return url.QueryEscape(src)
+}
+
+func htmlEncoding(str string) string {
+	var r string
+
+	arr := []rune(str)
+	num := len(arr)
+	for i := 0; i < num; i++ {
+		r += fmt.Sprint("&#", arr[i]) + ";"
+	}
+	return r
+}
+
+func md5Encoding32(str string) string {
+	h := md5.New()
+	h.Write([]byte(str))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+func md5Encoding16(str string) string {
+	return md5Encoding32(str)[8:24]
+}
+
+func sha256Encoding(str string) string {
+	h := sha256.New()
+	return hex.EncodeToString(h.Sum(nil))
 }
