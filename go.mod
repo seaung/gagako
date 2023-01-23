@@ -7,11 +7,14 @@ require (
 	github.com/Ullaakut/nmap/v2 v2.2.0 // indirect
 	github.com/abiosoft/ishell v2.0.0+incompatible // indirect
 	github.com/abiosoft/readline v0.0.0-20180607040430-155bce2042db // indirect
+	github.com/alouca/gologger v0.0.0-20120904114645-7d4b7291de9c // indirect
+	github.com/alouca/gosnmp v0.0.0-20170620005048-04d83944c9ab // indirect
 	github.com/denisenkom/go-mssqldb v0.12.3 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/flynn-archive/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
+	github.com/go-routeros/routeros v0.0.0-20210123142807-2a44d57c6730 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/godror/godror v0.36.0 // indirect
 	github.com/godror/knownpb v0.1.0 // indirect

@@ -2,11 +2,39 @@ package utils
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"net"
 	"os"
+	"os/exec"
+	"runtime"
 	"strings"
 )
+
+func Ping(host string) (res bool) {
+	categories := runtime.GOOS
+
+	switch categories {
+	case "linux":
+		var out bytes.Buffer
+		cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("ping -c 1 %s", host))
+		cmd.Stdout = &out
+		cmd.Run()
+		if strings.Contains(out.String(), "ttl=") {
+			res = true
+		}
+	case "windows":
+		var out bytes.Buffer
+		cmd := exec.Command("cmd", "/c", fmt.Sprintf("ping -a -n 1 %s", host))
+		cmd.Stdout = &out
+		cmd.Run()
+		if strings.Contains(out.String(), "ttl=") {
+			res = true
+		}
+	}
+
+	return res
+}
 
 func IsOpenPort(ipaddr string, port int) bool {
 	addr := net.TCPAddr{
