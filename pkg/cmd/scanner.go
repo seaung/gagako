@@ -32,8 +32,31 @@ var scannerCmd = &ishell.Cmd{
 	},
 }
 
+var customeScanCmd := &ishell.Cmd{
+	Name: "custom",
+	Help: "自定义扫描",
+	Func: func(c *ishell.Context) {
+		c.ShowPrompt(false)
+		defer c.ShowPrompt(true)
+
+		c.Print("请您提供一个目标IP地址: ")
+		ipAddr := c.ReadLine()
+		c.Print("请您提供一个目标端口或端口的范围: ")
+		port := c.ReadLine()
+		choices := c.MultiChoice([]string{
+			"异步扫描",
+			"全连接扫描",
+		}, "请您选择一个自定的扫描类型!")
+	},
+}
+
 func init() {
 	rootCmd.AddCmd(scannerCmd)
+	rootCmd.AddCmd(customeScanCmd)
+}
+
+func isCustomScannType(typ int) {
+	switch typ {}
 }
 
 func isScanType(code int) string {

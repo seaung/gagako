@@ -15,7 +15,7 @@ var (
 
 func checkSudo() {
 	if os.Geteuid() != 0 {
-		New().LoggerError("This program need to have root permission to execute nmap for now.")
+		New().LoggerError("This program need to have root permission to execute gagako for now.")
 		os.Exit(1)
 	}
 }
