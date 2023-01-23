@@ -1,47 +1,118 @@
 package utils
 
 import (
+	"bufio"
 	"fmt"
+	"net"
 	"os"
 	"strings"
-
-	"github.com/fatih/color"
 )
 
-var (
-	author  string = "seaung"
-	version string = "1.0.0"
-)
-
-func checkSudo() {
-	if os.Geteuid() != 0 {
-		New().LoggerError("This program need to have root permission to execute gagako for now.")
-		os.Exit(1)
+func IsOpenPort(ipaddr string, port int) bool {
+	addr := net.TCPAddr{
+		IP:   net.ParseIP(ipaddr),
+		Port: port,
 	}
+
+	connect, err := net.DialTCP("tcp", nil, &addr)
+	if err != nil {
+		New().Info(fmt.Sprintf("the connect is close, error : %v", err))
+		return false
+	}
+
+	if connect != nil {
+		connect.Close()
+		New().Info(fmt.Sprintf("the %d port is Open", port))
+		return true
+	}
+
+	return false
 }
 
-func showBanner() {
-	name := fmt.Sprintf("gagako (v.%s)", version)
-	banner := `
-                            __       
-   ____ _____ _____ _____ _/ /______ 
-  / __ '/ __ '/ __ '/ __ '/ //_/ __ \
- / /_/ / /_/ / /_/ / /_/ / ,< / /_/ /
- \__, /\__,_/\__, /\__,_/_/|_|\____/ 
-/____/      /____/                   
+func LoadDicts(filename string) []string {
+	dicts := []string{}
+	file, err := os.Open(filename)
+	if err != nil {
+		New().Warnning(fmt.Sprintf("Open %s error %v", filename, err))
+		return dicts
+	}
 
-	`
+	fd, _ := os.Stat(filename)
+	if fd.Size() == 0 {
+		New().Info(fmt.Sprintf("The file %s is NULL ", filename))
+		return dicts
+	}
 
-	lines := strings.Split(banner, "\n")
-	width := len(lines[1])
+	defer file.Close()
 
-	fmt.Println(banner)
-	color.Green(fmt.Sprintf("%[1]*s", -width, fmt.Sprintf("%[1]*s", (width+len(name))/2, name)))
-	color.Blue(fmt.Sprintf("%[1]*s", -width, fmt.Sprintf("%[1]*s", (width+len(author))/2, author)))
-	fmt.Println()
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line != "" {
+			dicts = append(dicts, line)
+		}
+	}
+
+	return dicts
 }
 
-func InitConsole() {
-	checkSudo()
-	showBanner()
+func LoadUserDict(filename string) []string {
+	dicts := []string{}
+	file, err := os.Open(filename)
+	if err != nil {
+		New().Warnning(fmt.Sprintf("Open %s error %v", filename, err))
+		return dicts
+	}
+
+	fd, _ := os.Stat(filename)
+
+	if fd.Size() == 0 {
+		New().Info(fmt.Sprintf("The file %s is NULL ", filename))
+		return dicts
+	}
+
+	defer file.Close()
+
+	reader := bufio.NewScanner(file)
+	reader.Split(bufio.ScanLines)
+
+	for reader.Scan() {
+		user := strings.TrimSpace(reader.Text())
+		if user != "" {
+			dicts = append(dicts, user)
+		}
+	}
+
+	return dicts
+}
+
+func LoadPasswordDict(filename string) []string {
+	dicts := []string{}
+	file, err := os.Open(filename)
+	if err != nil {
+		New().LoggerError(fmt.Sprintf("Open %s error : %v", filename, err))
+		return dicts
+	}
+
+	fd, _ := os.Stat(filename)
+	if fd.Size() == 0 {
+		New().Info(fmt.Sprintf("The file %s is NULL ", filename))
+		return dicts
+	}
+
+	defer file.Close()
+
+	reader := bufio.NewScanner(file)
+	reader.Split(bufio.ScanLines)
+
+	for reader.Scan() {
+		pwd := strings.TrimSpace(reader.Text())
+		if pwd != "" {
+			dicts = append(dicts, pwd)
+		}
+	}
+
+	return dicts
 }
