@@ -26,6 +26,7 @@ require (
 	github.com/miekg/dns v1.1.43 // indirect
 	github.com/monnand/goredis v0.0.0-20160310054727-e23c27d63458 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/stacktitan/smb v0.0.0-20190531122847-da9a425dceb8 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/sync v0.0.0-20220513210516-0976fa681c29 // indirect
