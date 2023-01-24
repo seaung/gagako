@@ -51,6 +51,16 @@ var statusText = map[string]string{
 
 var re = regexp.MustCompile(`\"(.*)\"`)
 
+var (
+	SystemTypeUnixL8    = "UNIX Type: L8"
+	SystemTypeWindowsNT = "Windows_NT"
+)
+
+var reSystStatus = map[string]*regexp.Regexp{
+	SystemTypeUnixL8:    regexp.MustCompile(""),
+	SystemTypeWindowsNT: regexp.MustCompile(""),
+}
+
 type (
 	WalkFunc func(path string, info os.FileMode, err error) error
 
@@ -138,7 +148,7 @@ func (f *FTP) Noop() (err error) {
 
 func (f *FTP) RawCmd(command string, args ...interface{}) (code int, line string) {
 	if f.debug {
-		log.Printf("Raw -> %s\n", fmt.Sprintf(command, args...))
+		utils.New().Warnning(fmt.Sprintf("Raw -> %s\n", command))
 	}
 
 	code = -1
@@ -148,7 +158,7 @@ func (f *FTP) RawCmd(command string, args ...interface{}) (code int, line string
 		return code, ""
 	}
 
-	if line, errr = f.receive(); err != nil {
+	if line, err = f.receive(); err != nil {
 		return code, ""
 	}
 
@@ -240,9 +250,65 @@ func (f *FTP) Rmd(path string) (err error) {
 }
 
 func (f *FTP) List(path string) (files []string, err error) {
+	var port int
+	var pconn net.Conn
+	var line string
+
 	if err = f.Type(TypeASCII); err != nil {
 		return
 	}
+
+	if port, err = f.Pasv(); err != nil {
+		return
+	}
+
+	if pconn, err = f.newConnector(port); err != nil {
+		return
+	}
+
+	defer pconn.Close()
+	if line, err = f.receiveNoDiscard(); err != nil {
+		return
+	}
+
+	if !strings.HasPrefix(line, StatusFileOK) {
+		if err = f.send("LIST %s", path); err != nil {
+			return
+		}
+
+		if line, err = f.receiveNoDiscard(); err != nil {
+			return
+		}
+
+		if !strings.HasPrefix(line, StatusFileOK) {
+			err = errors.New(line)
+			return
+		}
+	}
+
+	reader := bufio.NewReader(pconn)
+	for {
+		line, err = reader.ReadString('\n')
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return
+		}
+
+		files = append(files, string(line))
+	}
+	pconn.Close()
+
+	if line, err = f.receive(); err != nil {
+		return
+	}
+
+	if !strings.HasPrefix(line, StatusClosingDataConnection) {
+		err = errors.New(line)
+		return
+	}
+
+	return
 }
 
 func (f *FTP) Stor(path string, r io.Reader) (err error) {
@@ -476,6 +542,168 @@ func (f *FTP) ReadAndDiscard() (int, error) {
 		}
 	}
 	return count, nil
+}
+
+func (f *FTP) Syst() (line string, err error) {
+	if err = f.send("SYST"); err != nil {
+		return
+	}
+
+	if line, err = f.receive(); err != nil {
+		return
+	}
+
+	if !strings.HasPrefix(line, StatusSystemType) {
+		err = errors.New(line)
+		return
+	}
+
+	return strings.SplitN(strings.TrimSpace(line), " ", 2)[1], nil
+}
+
+func (f *FTP) Stat(path string) ([]string, error) {
+	if err := f.send("STAT %s", path); err != nil {
+		return nil, err
+	}
+
+	stat, err := f.receive()
+	if err != nil {
+		return nil, err
+	}
+
+	if !strings.HasPrefix(stat, StatusFileStatus) &&
+		!strings.HasPrefix(stat, StatusDirectoryStatus) &&
+		!strings.HasPrefix(stat, StatusSystemStatus) {
+		return nil, errors.New(stat)
+	}
+
+	if strings.HasPrefix(stat, StatusSystemStatus) {
+		return strings.Split(stat, "\n"), nil
+	}
+
+	lines := []string{}
+
+	for _, line := range strings.Split(stat, "\n") {
+		if strings.HasPrefix(line, StatusFileStatus) {
+			continue
+		}
+		lines = append(lines, strings.TrimSpace(line))
+
+	}
+
+	return lines, nil
+}
+
+func (f *FTP) Retr(path string, retrFn RetrFunc) (s string, err error) {
+	if err = f.Type(TypeImage); err != nil {
+		return
+	}
+
+	var port int
+	if port, err = f.Pasv(); err != nil {
+		return
+	}
+
+	if err = f.send("RETR %s", path); err != nil {
+		return
+	}
+
+	var pconn net.Conn
+	if pconn, err = f.newConnector(port); err != nil {
+		return
+	}
+	defer pconn.Close()
+
+	var line string
+	if line, err = f.receiveNoDiscard(); err != nil {
+		return
+	}
+
+	if !strings.HasPrefix(line, StatusFileOK) {
+		err = errors.New(line)
+		return
+	}
+
+	if err = retrFn(pconn); err != nil {
+		return
+	}
+
+	pconn.Close()
+
+	if line, err = f.receive(); err != nil {
+		return
+	}
+
+	if !strings.HasPrefix(line, StatusClosingDataConnection) {
+		err = errors.New(line)
+		return
+	}
+
+	return
+}
+
+func (f *FTP) Login(username, password string) (err error) {
+	if _, err = f.cmd("331", "USER %s", username); err != nil {
+		if strings.HasPrefix(err.Error(), "230") {
+			err = nil
+		} else {
+			return
+		}
+	}
+
+	if _, err = f.cmd("230", "PASS %s", password); err != nil {
+		return
+	}
+
+	return
+}
+
+func Connect(addr string) (*FTP, error) {
+	var err error
+	var conn net.Conn
+
+	if conn, err = net.Dial("tcp", addr); err != nil {
+		return nil, err
+	}
+
+	writer := bufio.NewWriter(conn)
+	reader := bufio.NewReader(conn)
+
+	object := &FTP{conn: conn, addr: addr, reader: reader, writer: writer, debug: false}
+	object.receive()
+
+	return object, nil
+}
+
+func ConnectDbg(addr string) (*FTP, error) {
+	var err error
+	var conn net.Conn
+
+	if conn, err = net.Dial("tcp", addr); err != nil {
+		return nil, err
+	}
+
+	writer := bufio.NewWriter(conn)
+	reader := bufio.NewReader(conn)
+
+	var line string
+
+	object := &FTP{conn: conn, addr: addr, reader: reader, writer: writer, debug: true}
+	line, _ = object.receive()
+
+	log.Print(line)
+
+	return object, nil
+}
+
+func (f *FTP) Size(path string) (size int, err error) {
+	line, err := f.cmd("213", "SIZE %s", path)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return strconv.Atoi(line[4 : len(line)-2])
 }
 
 func GetFTPStatusText(code string) string {
