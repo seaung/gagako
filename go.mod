@@ -9,6 +9,7 @@ require (
 	github.com/abiosoft/readline v0.0.0-20180607040430-155bce2042db // indirect
 	github.com/alouca/gologger v0.0.0-20120904114645-7d4b7291de9c // indirect
 	github.com/alouca/gosnmp v0.0.0-20170620005048-04d83944c9ab // indirect
+	github.com/bradfitz/gomemcache v0.0.0-20221031212613-62deef7fc822 // indirect
 	github.com/denisenkom/go-mssqldb v0.12.3 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/flynn-archive/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
