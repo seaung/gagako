@@ -21,9 +21,9 @@ var databaseCmd = &ishell.Cmd{
 			"mssql",
 		}, "请您选择一个数据库类型")
 
-		c.Print("请您提供一个数据库用户名字典文件: ")
+		c.Print("请您提供一个数据库用户名字典文件路径: ")
 		user := c.ReadLine()
-		c.Print("请您提供一个数据库用户密码字典文件: ")
+		c.Print("请您提供一个数据库用户密码字典文件路径: ")
 		pass := c.ReadLine()
 
 		c.Print("您提供的目标为 : ", target)
@@ -36,3 +36,5 @@ var databaseCmd = &ishell.Cmd{
 func init() {
 	rootCmd.AddCmd(databaseCmd)
 }
+
+func bureforceDatabase(target string) {}
