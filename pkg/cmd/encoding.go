@@ -48,7 +48,7 @@ func encoding(etype int, estring string) {
 	default:
 		utils.New().LoggerError("未知编码!")
 	case 1:
-		utils.New().Success(fmt.Sprintf("Base64 编码结果: %s\n", base64decoding(estring)))
+		utils.New().Success(fmt.Sprintf("Base64 编码结果: %s\n", base64encoding(estring)))
 	case 0:
 		utils.New().Success(fmt.Sprintf("URL 编码结果: %s\n", urlEncoding(estring)))
 	case 2:
