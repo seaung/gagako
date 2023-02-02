@@ -18,7 +18,7 @@ var decode = &ishell.Cmd{
 		c.ShowPrompt(false)
 		defer c.ShowPrompt(true)
 
-		c.Print("请您提供一个被编码过后的字符串: ")
+		c.Println("请您提供一个被编码过后的字符串: ")
 		dstr := c.ReadLine()
 
 		dtype := c.MultiChoice([]string{

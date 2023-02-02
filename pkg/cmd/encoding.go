@@ -33,8 +33,8 @@ var encode = &ishell.Cmd{
 			"HASH256",
 		}, "请您选择一个编码的类型")
 
-		c.Print("您输入的字符串为: ", isStr)
-		c.Print("您选择的编码为: ", eType)
+		c.Println("您输入的字符串为: ", isStr)
+		c.Println("您选择的编码为: ", eType)
 		encoding(eType, isStr)
 	},
 }

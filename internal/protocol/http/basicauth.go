@@ -3,6 +3,7 @@ package http
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/seaung/gagako/pkg/utils"
 )
@@ -54,6 +55,21 @@ func ScanBasicAuth(userdict, passdict, target string) {
 					utils.New().Success(fmt.Sprintf("FOUND Basic UnAuthorized : host - %s user - %s pass - %s", target, user, pass))
 					break
 				}
+			}
+		}
+	}
+}
+
+func ScanBasicAuth2(target, dictfile string) {
+	if ISBasicAuth(target) {
+		for _, dict := range utils.LoadDicts(dictfile) {
+			line := strings.Split(dict, ":")
+			user := line[0]
+			pass := line[1]
+			res, err := BasicAuth(target, user, pass)
+			if res == true && err == nil {
+				utils.New().Success(fmt.Sprintf("FOUND Basic UnAuthorized : host - %s user - %s - pass - %s", target, user, pass))
+				break
 			}
 		}
 	}

@@ -11,6 +11,30 @@ import (
 	"strings"
 )
 
+type Charset string
+
+const (
+	UTF8    = Charset("UTF-8")
+	GB18030 = Charset("GB18030")
+)
+
+func GetBetween(str, start, end string) string {
+	src := strings.Index(str, start)
+
+	if src < 0 {
+		return ""
+	}
+
+	src += len(start)
+	e := strings.Index(str[src:], end)
+
+	if e < 0 {
+		return ""
+	}
+
+	return str[src : src+e]
+}
+
 func Ping(host string) (res bool) {
 	categories := runtime.GOOS
 

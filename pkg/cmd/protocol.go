@@ -1,6 +1,9 @@
 package cmd
 
-import "github.com/abiosoft/ishell"
+import (
+	"github.com/abiosoft/ishell"
+	"github.com/seaung/gagako/pkg/utils"
+)
 
 var protoCmd = &ishell.Cmd{
 	Name:     "protocol",
@@ -30,4 +33,14 @@ func init() {
 	rootCmd.AddCmd(protoCmd)
 }
 
-func detectHostFromProtocol(target string, code int) {}
+func detectHostFromProtocol(target string, code, port int) {
+	switch code {
+	default:
+		utils.New().Warnning("未知选项!")
+	case 0:
+	case 1:
+	case 2:
+	case 3:
+	case 4:
+	}
+}
