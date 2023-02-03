@@ -23,7 +23,7 @@ func Connect2Mysql(host, username, passwd, port string) (bool, error) {
 	return true, nil
 }
 
-func BureforceMysql(categorite, target, ufile, pfile string) {
+func BureforceMysql(target, ufile, pfile string) {
 	for _, user := range utils.LoadUserDict(ufile) {
 		for _, pass := range utils.LoadPasswordDict(pfile) {
 			res, err := Connect2Mysql(target, user, pass, "3306")
@@ -36,7 +36,7 @@ func BureforceMysql(categorite, target, ufile, pfile string) {
 	}
 }
 
-func BureforceMysql2(categorite, target, filename string) {
+func BureforceMysql2(target, filename string) {
 	if utils.IsOpenPort(target, 3306) {
 		for _, values := range utils.LoadDicts(filename) {
 			line := strings.Split(values, ":")
